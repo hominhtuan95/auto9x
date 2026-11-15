@@ -1,0 +1,37 @@
+name: Build AutoTrain4NV Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - 'header.png'
+      - 'forest_background.png'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Build EXE
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name AutoTrain4NV --add-data "header.png;." --add-data "forest_background.png;." AutoTrain4NV.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoTrain4NV-Windows-EXE
+          path: dist/AutoTrain4NV.exe
+          if-no-files-found: error
